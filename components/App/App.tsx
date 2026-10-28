@@ -1,38 +1,38 @@
-import { fetchNotes } from '@/lib/api';
-import css from './App.module.css';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDebouncedCallback } from 'use-debounce';
-import SearchBox from '../SearchBox/SearchBox';
-import Pagination from '../Pagination/Pagination';
-import Modal from '../Modal/Modal';
-import NoteForm from '../NoteForm/NoteForm';
-import Loader from '../Loader/Loader';
-import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import NoteList from '../NoteList/NoteList';
+import { fetchNotes } from '@/lib/api';
+
+import SearchBox from '@/components/SearchBox/SearchBox';
+import Pagination from '@/components/Pagination/Pagination';
+import Modal from '@/components/Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm';
+import Loader from '@/components/Loader/Loader';
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage';
+import NoteList from '@/components/NoteList/NoteList';
 
 export default function App() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [isModalOpen, setIsmodalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isFetching, isError } = useQuery({
     queryKey: ['notes', searchQuery, page],
-    queryFn: () => fetchNotes({ search: searchQuery, page }),
+    queryFn: () => fetchNotes(searchQuery),
     placeholderData: keepPreviousData,
   });
 
-  const notes = data?.notes ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const notes = Array.isArray(data) ? data : [];
+  const totalPages = 1;
 
   const openModal = () => {
-    setIsmodalOpen(true);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsmodalOpen(false);
+    setIsModalOpen(false);
   };
 
   const updateSearchQuery = useDebouncedCallback((value: string) => {
@@ -40,10 +40,9 @@ export default function App() {
     setPage(1);
   }, 300);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = event.target.value;
-    setSearchInput(nextValue);
-    updateSearchQuery(nextValue);
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    updateSearchQuery(value);
   };
 
   useEffect(() => {
@@ -54,25 +53,29 @@ export default function App() {
 
   return (
     <>
-      <div className={css.app}>
-        <header className={css.toolbar}>
-          <SearchBox onSearch={handleSearchChange} value={searchInput} />
+      <div>
+        <header>
+          {}
+          <SearchBox onChange={handleSearchChange} value={searchInput} />
+          
           {totalPages > 1 && (
             <Pagination
               totalPages={totalPages}
-              page={page}
-              onPageChange={newPage => setPage(newPage)}
+              currentPage={page} 
+              onPageChange={(newPage) => setPage(newPage)}
             />
           )}
-          {isModalOpen && (
-            <Modal onClose={closeModal}>
-              <NoteForm onClose={closeModal} />
-            </Modal>
-          )}
-          <button onClick={openModal} className={css.button}>
-            Create note +
-          </button>
         </header>
+
+        {isModalOpen && (
+          <Modal isOpen={isModalOpen} onClose={closeModal}>
+            <NoteForm onClose={closeModal} />
+          </Modal>
+        )}
+
+        <button onClick={openModal}>
+          Create note +
+        </button>
 
         {isFetching ? (
           <Loader />
@@ -81,9 +84,8 @@ export default function App() {
         ) : (
           notes.length > 0 && <NoteList notes={notes} />
         )}
-
-        <Toaster />
       </div>
+      <Toaster />
     </>
   );
 }

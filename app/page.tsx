@@ -1,15 +1,22 @@
-import css from '../components/Home/Home.module.css';
+import css from './Home.module.css';
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <main className={css.container}>
-      <section>
-        <h1 className={css.title}>Welcome to NoteHub!</h1>
+    <main className={css.main}>
+      <div className={css.container}>
+        <h1 className={css.title}>Welcome to NoteHub</h1>
         <p className={css.description}>
-          Your ultimate workspace for creating, organizing, and managing your personal notes efficiently. 
-          Stay productive and never lose a brilliant idea again.
+          NoteHub is a simple and efficient application designed for managing
+          personal notes. It helps keep your thoughts organized and accessible
+          in one place, whether you are at home or on the go.
         </p>
-      </section>
+        <p className={css.description}>
+          The app provides a clean interface for writing, editing, and browsing
+          notes. With support for keyword search and structured organization,
+          NoteHub offers a streamlined experience for anyone who values clarity
+          and productivity.
+        </p>
+      </div>
     </main>
   );
 }

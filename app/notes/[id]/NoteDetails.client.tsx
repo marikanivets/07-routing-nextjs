@@ -1,43 +1,47 @@
-// src/app/notes/[id]/NoteDetails.client.tsx
 'use client';
 
+import css from './NoteDetails.module.css';
+import { fetchNoteById } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchNoteById } from '../../../lib/api';
-import css from '@/components/NoteDetails/NoteDetails.module.css';
 
-export default function NoteDetailsClient() {
+const NoteDetailsClient = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  
-  const { data: note, isLoading, isError } = useQuery({
+  const {
+    data: note,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
-    refetchOnMount: false, 
+    refetchOnMount: false,
   });
 
+  const close = () => router.back();
+
   if (isLoading) return <p>Loading, please wait...</p>;
-  if (isError || !note) return <p>Something went wrong.</p>;
+
+  if (error || !note) return <p>Something went wrong.</p>;
 
   return (
-    <div className={css.container}>
-      <button onClick={() => router.back()} className={css.backBtn}>
-        &larr; Back to Notes
-      </button>
-      
-      <article className={css.card}>
-        <div className={css.meta}>
-          <span className={css.tag}>#{note.tag}</span>
-          <span className={css.date}>
-            {new Date(note.createdAt).toLocaleDateString()}
-          </span>
+    <main className={css.main}>
+      <div className={css.container}>
+        <button className={css.backBtn} onClick={close}>
+          Close
+        </button>
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+          </div>
+          <p className={css.tag}>{note.tag}</p>
+          <p className={css.content}>{note.content}</p>
+          <p className={css.date}>{note.createdAt}</p>
         </div>
-        <h1 className={css.title}>{note.title}</h1>
-        <div className={css.content}>
-          <p>{note.content}</p>
-        </div>
-      </article>
-    </div>
+      </div>
+    </main>
   );
-}
+};
+
+export default NoteDetailsClient;

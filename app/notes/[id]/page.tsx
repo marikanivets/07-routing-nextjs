@@ -1,16 +1,18 @@
-// app/@modal/(.)notes/[id]/page.tsx
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import { fetchNoteById } from '../../../../lib/api';
-import NotePreviewClient from './NotePreview.client';
+import { fetchNoteById } from '@/lib/api';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
+import NoteDetailsClient from './NoteDetails.client';
 
-interface PageProps {
+type Props = {
   params: Promise<{ id: string }>;
-}
+};
 
-export default async function NotePreviewPage({ params }: PageProps) {
-  const resolvedParams = await params;
-  const id = resolvedParams.id;
-  
+const NoteDetails = async ({ params }: Props) => {
+  const { id } = await params;
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -20,7 +22,9 @@ export default async function NotePreviewPage({ params }: PageProps) {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NotePreviewClient />
+      <NoteDetailsClient />
     </HydrationBoundary>
   );
-}
+};
+
+export default NoteDetails;
